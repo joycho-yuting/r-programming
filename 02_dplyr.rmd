@@ -1,0 +1,420 @@
+---
+title: "Data Wrangling with R"
+author: 'Lutao DAI'
+date: "Aug 20, 2019"
+output:
+  rmdformats::readthedown:
+    self_contained: true
+    thumbnails: true
+    lightbox: true
+    gallery: false
+    highlight: tango
+  html_document:
+    code_folding: show
+    highlight: haddock
+    theme: lumen #yeti #spacelab #simplex #readable #paper #flatly #cosmo #lumen
+    toc: yes
+    toc_depth: 3
+    toc_float: yes
+  pdf_document:
+    toc: yes
+    toc_depth: '4'
+---
+
+```{r, include=F}
+require(pacman)
+pacman::p_load(tidyverse, Ecdat, kableExtra, nycflights13)
+```
+
+
+# Datasets
+## World Happiness Report 2018 Dataset
+
+
+Column Name                  | Explaination                                
+:---------------------------:|:----------------------------------------
+Rank                         | Overall happiness ranking
+Country                      | Country name
+Score                        | Happiness score
+GDP_Per_Capita               | Economic contribution to happiness score
+Social_Support               | Social contribution to happiness score
+Healthy_Life_Expectancy      | Health contribution to happiness score
+Freedom_To_Make_Life_Choices | Freedom contribution to happiness score
+Generosity                   | Generosity contribution to happiness score
+Perceptions_Of_Corruption    | Trustworthiness contribution to happiness score
+Residual                     | Portion of happiness score that is not attributed to any of the listed categories
+
+`vec.len` indicates how many ‘first few’ elements are displayed of each vector. You can leave it to the default value. I have set this argument to 1 for better output file formating.
+
+```{r}
+happy.df <- read.csv("WorldHappiness2018_Data.csv")
+str(happy.df, vec.len=1)
+```
+
+Reference:
+
+1. https://www.kaggle.com/PromptCloudHQ/world-happiness-report-2019
+1. https://worldhappiness.report/ed/2019/
+
+## Wages and Education of Young Males Datasets
+
+Column Name   | Explaination                                
+:------------:|:----------------------------------------
+nr            | Identifier
+year          | Year
+school        | Years of schooling
+exper         | Years of experience ($=$age$-6-$school)
+union         | If wage is set by collective bargaining
+ethn          | Ethnicity
+maried        | If married
+health        | If he has health problems
+wage          | Log hourly wage
+industr       | Industry that he was in
+occupation    | Occupation
+residence    | Residence location
+
+```{r}
+str(Males, vec.len=1)
+```
+
+## NYC Flights Data in 2013
+A data frame contains all 336,776 flights departing from New York City in 2013.
+
+Column Name                   | Explaination                                                                           
+:----------------------------:|:------------------------------------------------------------------------
+nyear, month, day             | Date of departure
+dep_time, arr_time            | Actual departure and arrival times (format HHMM or HMM), local tz.
+sched_dep_time, sched_arr_time| Scheduled departure and arrival times (format HHMM or HMM), local tz.
+dep_delay,a rr_delay          |Departure and arrival delays, in minutes. Negative times represent early departures/arrivals.
+hour, minute                  | Time of scheduled departure broken into hour and minutes.
+carrier                       | Two letter carrier abbreviation. See airlines() to get name
+tailnum                       | Plane tail number
+flight                        | Flight number
+origin, dest                  | Origin and destination. See airports() for additional metadata.
+air_time                      | Amount of time spent in the air, in minutes
+distance                      | Distance between airports, in miles
+time_hour                     | Scheduled date and hour of the flight as a POSIXct date. Along with origin, can be used to join flights data to weather data.
+
+
+```{r}
+str(flights)
+```
+
+```{r, include=FALSE}
+happy.df <- as_data_frame(happy.df)
+Males <- as_data_frame(Males)
+```
+
+
+# dplyr: Data Transformation
+## filter()
+> `filter()` allows you to subset rows based on criterions related to their values
+
+Operations that can be used to set up criterions include:
+
+1. comparisons: `>`, `>=`, `<`, `<=`, `==` (equal), `!=` (not equal)
+1. logical operators: `&` (and), `|` (or). Don't use `&&` or `||`.
+1. `%in%` operator.
+
+
+`dplyr` functions can be used both with and without pipe (`%>%`). When used without pipe, the first argument to the function is the dataframe. For example, to subset all observations recorded in the year 1980:
+```{r}
+filter(Males, year == 1980)
+```
+
+However, you are encouraged to call dplyr functions with pipe, because it outlines the sequences of how a dataframe is processed, therefore, more clear logically.
+
+Simply put, the following two expressions are identical:
+```r
+# expression 1
+x %>% 
+  function(y)
+  
+# expression 2
+function(x, y)
+```
+
+> Pipe symbol `%>%` takes whatever returns from the previous step as the first argument of the subsequent function.
+
+In the context of applying dplyr functions, the following formula comes in handy.
+```r
+> data.frame %>% 
+>   function1(arguments) %>% 
+>   function2(arguments) %>% 
+> ...
+```
+
+For example, to subset observations in the year 1980 with pipe:
+
+```{r}
+Males %>% 
+  filter(year == 1980)
+```
+
+
+`filter()` accepts multiple conditions seperated by commas. 
+
+> Multiple conditions are treated as and (`&`) logically. 
+
+To subset hispanic observations in the year 1980:
+```{r}
+Males %>% 
+  filter(year == 1980, ethn == "hisp")
+```
+
+> Other logical relationships should be explicitly specified. 
+
+For example:
+```{r}
+Males %>% 
+  filter(year == 1980 | maried == "no")
+```
+
+Finally, let's look at an example of `%in%`. `%in%` is equivalent to "is an instance of" in statistics. For example, if $x$ is an instance of the set $X$, then `x %in% X` will return `TRUE`.
+
+To subset observations from year 1980 to 1983 (both inclusive):
+```{r}
+Males %>% 
+  filter(year %in% 1980:1983)
+```
+
+> `filter()` excludes `NA` for you
+
+```{r}
+data.frame(x = c(1, NA, NA, 4)) %>% 
+  filter(x > 1)
+```
+
+
+
+## arrange()
+> `arrange()` changes the order of rows. Usually, it is used to sort observations in ascending (by default) or descending order (with `desc()`).
+
+The argument to `arrange()` is simply the column names. By default, the observations will be organized in ascending order. If multiple columns are passed, latter columns will only have effect for those observations that share the value of ALL preceding columns. 
+
+For example, observations are first sorted by `year` in ascending order, so observations in the year 1980 come to the front. For observations occur in the same year, their order is further determined by the value in the column `school`:
+```{r}
+Males %>% 
+  arrange(year, school)
+```
+
+To sort observations in descending order, pass the column to function `desc()` first.
+```{r}
+happy.df %>% 
+  arrange(desc(Rank))
+```
+
+> Missing values are always sorted at the end, regardless of ascending or descending order.
+
+```{r}
+df <- tibble(x = c(15, NA, 22, NA, -43, NA))
+df %>% 
+  arrange(x)
+```
+
+```{r}
+df %>% 
+  arrange(desc(x))
+```
+
+How to sort all missing values to the start?
+```{r}
+df %>% 
+  arrange(desc(is.na(x)), x)
+```
+
+## select()
+It is not uncommon for the number of columns to reach hundreds or even thousands level. Under this circumstances, it is helpful to single out a few more important columns and examine them first. 
+
+> `select()` is use to subset columns from a dataframe.
+
+`select()` is similar to `filter()` for rows.
+
+The dataframe `Males` contain 12 columns. Suppose we are only concerned with 4 of them: `school`, `maried`, `health` and `wage`. To create a sub-dataframe with only those four columns:
+```{r}
+Males %>% 
+  select(school, maried, health, wage)
+```
+
+> You can use `:` to select all the columns continuously
+
+Suppose we would like to select all columns between `year` and `wage`:
+```{r}
+Males %>% 
+  select(year:wage)
+```
+
+> You can put the negative sign `-` in front of column names to exclude those columns
+
+This works for a single columns, a vector, or a sequence specified by `:`
+```{r}
+Males %>% 
+  select(-c(year, union))
+```
+
+### Handy helper functions that can be used in `select()`
+1. `starts_with("str")`
+1. `ends_with("str")`
+1. `contains("str")`
+1. `one_of()` #matches variable names in a character vector
+1. `everything()` #matches all variables
+1. `matches("(.)\\1")` #matches a regular expression
+1. `num_range("x", 1:3)` #matches x1, x2 and x3
+1. `last_col(offset=0)` #select last $n$ column, specified by `offset=`
+
+
+
+```{r}
+happy.df %>% 
+  select(starts_with("G"))
+```
+
+
+
+> Special function `everything()` can be used to put the most important columns to the front.
+
+```{r}
+Males %>% 
+  select(wage, school, everything())
+```
+
+In this scenario, does `everything()` include `wage`?
+
+## rename()
+> `rename()` is used to rename the name of columns. The syntax is `rename(new_name = old_name)`
+
+For example, rename the `nr` to `id` since `nr` is the identifier of individual. `id` is a better name because it is more straightforward. 
+
+```{r}
+Males %>% 
+  rename(id = nr)
+```
+
+`select()` can be used to rename a column too. However, it is rarely used because it drops all unselected columns, which is usually not desirable.  
+```{r}
+Males %>% 
+  select(id = nr)
+```
+
+How can you use `select()` to obtain the exact result from `rename()`?
+```{r}
+Males %>% 
+  select(id = nr, everything())
+```
+
+
+
+## mutate()
+Sometimes it would be helpful to generate new features from existing columns. `mutate()` help you achieve this.
+
+> `mutate()` generate new features from existing columns and append them to the end of the dataframe.
+
+For example, in the `happy.df` dataset, one may be interested in the difference between two adjacent happiness score.
+```{r}
+happy.df %>% 
+  mutate(score.diff = Score - lag(Score)) %>% 
+  select(Score, score.diff)
+```
+
+Same as all dplyr functions, all changes are not made in-place.
+```{r}
+"score.df" %in% colnames(happy.df)
+```
+
+To preserve changes, remember to assign the returned dataframe to a new variable or even replace the original dataframe.
+```{r}
+delta.score.df <- 
+  happy.df %>% 
+  mutate(score.diff = Score - lag(Score)) %>% 
+  select(Score, score.diff)
+```
+
+```{r}
+str(delta.score.df)
+```
+
+If you ONLY want to keep the new variables, try `transmute()`
+```{r}
+happy.df %>% 
+  transmute(score.diff = Score - lag(Score))
+```
+
+How to make `mutate()` produce the same results as `transmute()`?
+```{r}
+happy.df %>% 
+  mutate(score.diff = Score - lag(Score)) %>% 
+  select(score.diff)
+```
+
+
+
+### Creation Functions
+Operations that can be used in `mutate()` or `transmute()`
+
+1. Arithmetic operators: `+` `-` `*` `/` `^` 
+1. Modular arithmetic: `%/%` (integer division) `%%`(remainder)
+1. Logs: `log()` `log2()` `log10()`
+1. Offsets: `lead()` and `lag()`
+1. Cumulative and rolling aggregates: `cumsum()` `cumprod()` `cummin()` `cummax()` `cummean()`
+1. Logical comparisons: `<` `<=` `>` `>=` `!=`
+1. Ranking `min_rank()` `row_number()` `dense_rank()` `percent_rank()` `cume_dist()` `ntile()`
+
+## summarize()
+> `summarize()` most of the time works with `group_by()` to obtain group statistics.
+
+```{r}
+Males %>% 
+  group_by(maried, health) %>% 
+  summarize(mean.wage = mean(wage, na.rm=TRUE),
+            count = n(),
+            missing.count = sum(is.na(wage)))
+```
+
+Note that columns passed to `group_by()` should be categorical variables (Factor). Since both `maried` and `health` are binary (either has only 2 level - yes and no), there are in total 4 resultant groups. The statistics summarized by `summary()` is the statistics specific to each group.
+
+### Summary Functions
+1. measures of location `mean(x)` `median(x)`
+1. measures of spread `sd(x)` `IQR(x)` `mad(x)`
+1. measures of rank `min(x)` `quantile(x, 0.25)` `max(x)`
+1. measures of position `first(x)` `nth(x, 2)` `last(x)`
+1. counts `n()` `n_distinct(x)`
+1. counts and proportions of logical values `sum(x > 10)` `mean(y == 0)`
+
+> It is a good practice to pass `na.rm=TRUE` everytime one calls those summary functions, since every operation on `NA` yields `NA`, which typically jeopardizes analysis.  
+
+
+### Ungrouping
+> `ungroup()` removes grouping
+
+```{r}
+Males %>% 
+  group_by(maried, health) %>% 
+  ungroup() %>% 
+  summarize(mean.wage = mean(wage, na.rm=TRUE),
+            count = n(),
+            missing.count = sum(is.na(wage)))
+```
+## Summary
+Command Names | Tasks                                 
+:------------:|:--------------------------------------
+`filter`      | filtering rows by setting rules
+`arrange`     | reordering rows
+`select`      | selecting columns by names
+`rename`      | renaming column names, and return all columns
+`mutate`      | creating new variables with functions of existing columns
+`transmute`   | creating new variables with functions of existing columns and returning only the new variables
+`group_by`    | grouping factors
+`ungroup`     | removing all groups
+`summarize`   | obtaining statistical summary, such as mean, count, standard deviation, from selected data
+
+# readr
+
+# tidyr
+
+# stringr
+
+# forcats
+
+# lubridate
+
+
