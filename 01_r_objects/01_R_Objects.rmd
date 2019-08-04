@@ -1,0 +1,66 @@
+---
+title: "R Objects"
+author: 'Lutao DAI'
+date: "Aug 20, 2019"
+output:
+  rmdformats::readthedown:
+    self_contained: true
+    thumbnails: true
+    lightbox: true
+    gallery: false
+    highlight: tango
+  html_document:
+    code_folding: show
+    highlight: haddock
+    theme: readthedown #yeti #spacelab #simplex #readable #paper #flatly #cosmo #lumen
+    toc: yes
+    toc_depth: 3
+    toc_float: yes
+  pdf_document:
+    toc: yes
+    toc_depth: '4'
+---
+
+```{r, include=F}
+require(pacman)
+pacman::p_load(tidyverse)
+```
+
+
+## Comparison
+Comparison operators:  >, >=, <, <=, == (equal), != (not equal)
+
+```{r}
+sqrt(4)^2 == 4
+```
+
+```{r}
+sqrt(2)^2 == 2
+```
+```{r}
+near(sqrt(2)^2, 2)
+```
+
+
+## Logical Operators
+$ (and), | (or), ! (not), xor
+
+## Missing Values
+Missing values are extremely problematic. Almost any operations involving `NA` will result in `NA`.
+```{r}
+NA + 3
+```
+```{r}
+na.value <- NA
+na.value == NA
+```
+
+Use `is.na` to check if a value is missing
+```{r}
+is.na(na.value)
+```
+
+Generally, there are three ways of treating them.
+1. Get rid of them completely. For example, remove columns that contain too many missing values, or drop rows that with missing values
+1. Preserve observations or columns but create indicators
+1. (Use with care) Replace missing values with a numerical value as placeholder. For example, since value -1 is meaningless for the column `AGE`, you can replace `NA` in the column `AGE` with -1. However, be careful if you try to perform numerical operations on them.
