@@ -47,7 +47,7 @@ Residual                     | Portion of happiness score that is not attributed
 `vec.len` indicates how many ‘first few’ elements are displayed of each vector. You can leave it to the default value. I have set this argument to 1 for better output file formating.
 
 ```{r}
-happy.df <- read.csv("WorldHappiness2018_Data.csv")
+happy.df <- read.csv("../data/WorldHappiness2018_Data.csv")
 str(happy.df, vec.len=1)
 ```
 
@@ -422,7 +422,7 @@ Function Names | Tasks
 
 ## Under the Default Setting
 ```{r}
-happy.df2 <- read_csv("WorldHappiness2018_Data.csv")
+happy.df2 <- read_csv("../data/WorldHappiness2018_Data.csv")
 ```
 
 The message output by `read_csv()` includes the name and type of each column.
@@ -487,7 +487,28 @@ write_csv(df, path)
 `df` is a dataframe and path is the location you want the file saved at.
 
 
-# stringr
+# stringr: Strings and Regular Expressions
+## String Basics
+
+> You can create a string with either single quotes or double quotes.
+
+```{r}
+single.quote <- 'a single quote string'
+double.quote <- "a double quote sting"
+```
+
+> To include a literal single or double quote, you can either use \ to escape it, or use single quote and double quote alternatively.
+
+```{r}
+lit.double.quote <- '"' # or "\""
+lit.double.quote
+```
+```{r}
+lit.single.quote <- '\'' # or "'"
+lit.single.quote
+```
+
+Quiz. How to include a literal backslash `\`? 
 
 # forcats
 

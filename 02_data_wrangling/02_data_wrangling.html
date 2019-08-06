@@ -118,8 +118,9 @@ $(document).ready(function () {
       <li><a href="#handle-na-values">Handle <code>NA</code> values</a></li>
       <li><a href="#write-to-a-file">Write to a File</a></li>
       </ul></li>
-      <li><a href="#tidyr">tidyr</a></li>
-      <li><a href="#stringr">stringr</a></li>
+      <li><a href="#stringr-strings-and-regular-expressions">stringr: Strings and Regular Expressions</a><ul>
+      <li><a href="#string-basics">String Basics</a></li>
+      </ul></li>
       <li><a href="#forcats">forcats</a></li>
       <li><a href="#lubridate">lubridate</a></li>
       </ul>
@@ -186,7 +187,7 @@ $(document).ready(function () {
 </tbody>
 </table>
 <p><code>vec.len</code> indicates how many ‘first few’ elements are displayed of each vector. You can leave it to the default value. I have set this argument to 1 for better output file formating.</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">happy.df &lt;-<span class="st"> </span><span class="kw">read.csv</span>(<span class="st">&quot;WorldHappiness2018_Data.csv&quot;</span>)
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">happy.df &lt;-<span class="st"> </span><span class="kw">read.csv</span>(<span class="st">&quot;../data/WorldHappiness2018_Data.csv&quot;</span>)
 <span class="kw">str</span>(happy.df, <span class="dt">vec.len=</span><span class="dv">1</span>)</code></pre></div>
 <pre><code>## 'data.frame':    156 obs. of  10 variables:
 ##  $ Rank                        : int  1 2 ...
@@ -988,7 +989,7 @@ df <span class="op">%&gt;%</span><span class="st"> </span>
 </blockquote>
 <div id="under-the-default-setting" class="section level2">
 <h2>Under the Default Setting</h2>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">happy.df2 &lt;-<span class="st"> </span><span class="kw">read_csv</span>(<span class="st">&quot;WorldHappiness2018_Data.csv&quot;</span>)</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">happy.df2 &lt;-<span class="st"> </span><span class="kw">read_csv</span>(<span class="st">&quot;../data/WorldHappiness2018_Data.csv&quot;</span>)</code></pre></div>
 <pre><code>## Parsed with column specification:
 ## cols(
 ##   Rank = col_integer(),
@@ -1081,11 +1082,26 @@ df <span class="op">%&gt;%</span><span class="st"> </span>
 <p><code>df</code> is a dataframe and path is the location you want the file saved at.</p>
 </div>
 </div>
-<div id="tidyr" class="section level1">
-<h1>tidyr</h1>
+<div id="stringr-strings-and-regular-expressions" class="section level1">
+<h1>stringr: Strings and Regular Expressions</h1>
+<div id="string-basics" class="section level2">
+<h2>String Basics</h2>
+<blockquote>
+<p>You can create a string with either single quotes or double quotes.</p>
+</blockquote>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">single.quote &lt;-<span class="st"> 'a single quote string'</span>
+double.quote &lt;-<span class="st"> &quot;a double quote sting&quot;</span></code></pre></div>
+<blockquote>
+<p>To include a literal single or double quote, you can either use  to escape it, or use single quote and double quote alternatively.</p>
+</blockquote>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">lit.double.quote &lt;-<span class="st"> '&quot;'</span> <span class="co"># or &quot;\&quot;&quot;</span>
+lit.double.quote</code></pre></div>
+<pre><code>## [1] &quot;\&quot;&quot;</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">lit.single.quote &lt;-<span class="st"> '</span><span class="ch">\'</span><span class="st">'</span> <span class="co"># or &quot;'&quot;</span>
+lit.single.quote</code></pre></div>
+<pre><code>## [1] &quot;'&quot;</code></pre>
+<p>Quiz. How to include a literal backslash <code>\</code>?</p>
 </div>
-<div id="stringr" class="section level1">
-<h1>stringr</h1>
 </div>
 <div id="forcats" class="section level1">
 <h1>forcats</h1>
