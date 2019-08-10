@@ -497,7 +497,7 @@ single.quote <- 'a single quote string'
 double.quote <- "a double quote sting"
 ```
 
-> To include a literal single or double quote, you can either use \ to escape it, or use single quote and double quote alternatively.
+> To include a literal single or double quote, you can either use \\ to escape it, or use single quotes and double quotes alternatively.
 
 ```{r}
 lit.double.quote <- '"' # or "\""
@@ -509,6 +509,228 @@ lit.single.quote
 ```
 
 Quiz. How to include a literal backslash `\`? 
+
+## Special Characters
+There are many special characters represented by strings. The most common are `\n`, for newline, and `\t` for tab.
+
+```{r}
+writeLines("First line\nSecond line\tA tab")
+```
+
+Unicode is mapping of string to special symbols. Those strings start with "\\u", followed by four-digit numbers or English letters. You can find the mapping table [here](https://unicode-table.com/en/).
+```{r}
+writeLines("\u2602")
+```
+
+## writeLines()
+`writeLines` is the R equivalence of `print` function of Python. It is used to display the raw contents of the string. For example:
+```{r}
+lit.double.quote
+```
+
+```{r}
+writeLines(lit.double.quote)
+```
+
+Without `writeLines`, `\n` and `\t` will not be interpreted.
+```{r}
+"First line\nSecond line\tA tab"
+```
+
+```{r}
+writeLines("First line\nSecond line\tA tab")
+```
+
+## str_length()
+The functions from `stringr` all start with `str_`. Starting from this subsections, I will introduce a few most commonly used string functions from `stringr`.
+
+> `str_length()` tells you the number of characters in a string.
+
+```{r}
+str_length(c("happy", "sad", "calm"))
+```
+
+## str_c()
+
+> `str_c()` combines two or more strings
+
+```{r}
+str_c("a", "b", "c")
+```
+
+> Arg 1: use `sep` to control how they are separated
+
+```{r}
+str_c("a", "b", "c", sep = ", ")
+```
+
+
+```{r}
+writeLines(str_c("a", "b", "c", sep="\n"))
+```
+
+`str_c()` is vectorized, which means if a vector is passed to it, then `str_c()` is applied to each item in the vector.
+
+```{r}
+x <- c("Tom", "Jerry", "Sam", "Lucy")
+str_c("Welcome to the class,", x, "!", sep = " ")
+```
+
+> Arg 2: To collapse a vector of strings into a single string, use `collapse`
+
+```{r}
+str_c(x, collapse = ", ")
+```
+
+## str_replace_na()
+
+> `str_replace_na()` turn `NA` into "NA"
+
+```{r}
+x <- c("ab", "cd", NA, "gh")
+str_replace_na(x)
+```
+
+## str_sub()
+> `str_sub() extract parts of a string. The template is `str_sub(string, start, end)`
+
+```{r}
+x <- c("Engineering", "Medicine", "Social Science", "Law", "Business")
+str_sub(x, 1, 3)
+```
+
+Similar to Python, negative numbers count backwards from the end
+```{r}
+str_sub(x, -3, -1)
+```
+
+## str_to_lower()
+> str_to_lower() changes all letters to lowercase.
+
+```{r}
+x <- c("Engineering", "Medicine", "Social Science", "Law", "Business")
+str_to_lower(x)
+```
+
+Similarly, there is `str_to_upper()` and `str_to_title()`
+
+```{r}
+x <- str_to_upper(x)
+x
+```
+
+```{r}
+str_to_title("the university of hong kong")
+```
+
+## str_view()
+In large datasets, it is likely that string-type columns carry important information. However, strings usually cannot be processed directly. A typical pipeline is to use regular expressions to identify different groups of strings with common patterns and encode them accordingly. `str_view()` and `str_view_all()` allow us to match strings by regular expressions. `str_vew()` shows the first match, while `str_view_all()` shows all the matches. 
+
+### Exact Match
+
+```{r}
+x <- c("Engineering", "Medicine", "Science", "Social Science")
+str_view(x, "ne")
+```
+
+### `.` to match any character except a newline
+```{r}
+str_view(x, ".e.")
+```
+
+### `^`  to match the start of the string
+```{r}
+str_view(x, "^Sci")
+```
+
+
+### `$` to match the end of the string
+```{r}
+str_view(x, "ing$")
+```
+
+### `\d` to match any digit
+But remember you need to escape the "\\" for the string.
+```{r}
+x <- c("in the winter of 1993", "23 years old")
+str_view(x, "\\d")
+```
+
+### `\s` to match any spaces
+```{r}
+str_view_all(x, "\\s")
+```
+
+### Alternatives
+
+Expression|Meaning                      
+:--------:|-----------------------------------
+[abc]     | to match a, b, or c
+[^abc]    | to match anything except a, b or c
+app|tab   | to match either app or tab
+
+
+### Repetition
+
+Expression|Meaning                      
+:--------:|-----------------------------------
+?         | the pattern repeats 0 or 1 times
++         | the pattern repeats 1 or more times
+*         | the pattern repeats 0 or more times 
+
+```{r}
+x <- c("Engineering", "Medicine", "Science", "Social Science")
+str_view(x, "^S[a-zA-Z ]+ce$")
+```
+
+## str_detect()
+
+> `str_detect()` returns a logical vector the same length as the input indicating if the patter appear.
+
+```{r}
+x <- c("Engineering", "Medicine", "Science", "Social Science")
+str_detect(x, "e$")
+```
+
+A common use of `str_detect()` is to select elements that match a pattern. 
+```{r}
+x[str_detect(x, "e$")]
+```
+
+This is what to put in the `filter()` from `dplyr`.
+```{r}
+happy.df %>% 
+  filter(str_detect(Country, "United"))
+```
+
+## str_extract()
+> `str_extract()` extracts matching patterns from a string (what is highlighted in `str_view()`)
+
+```{r}
+x <- c("drop", "troop", "open", "close")
+str_extract(x, "op$")
+```
+
+## str_replace()
+
+> `str_replace()` allows you to replace the first match with new strings, while `str_replace_all()` replaces all matches with new strings.
+
+```{r}
+x <- c("apple", "pear", "banana")
+str_replace(x, "[aeiou]", "-")
+```
+
+```{r}
+str_replace_all(x, "[aeiou]", "-")
+```
+
+## str_split()
+
+> str_split() splits a string up to pieces.
+
+```{r}
+str_split("The University of Hong Kong", " ")
+```
 
 # forcats
 
