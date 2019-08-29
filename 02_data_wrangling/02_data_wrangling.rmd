@@ -18,7 +18,7 @@ output:
     toc_float: yes
   pdf_document:
     toc: yes
-    toc_depth: '4'
+    toc_depth: 4
 ---
 
 ```{r, include=F}
@@ -69,7 +69,7 @@ ethn          | Ethnicity
 maried        | If married
 health        | If he has health problems
 wage          | Log hourly wage
-industr       | Industry that he was in
+industry     | Industry that he was in
 occupation    | Occupation
 residence    | Residence location
 
@@ -592,7 +592,7 @@ str_replace_na(x)
 ```
 
 ## str_sub()
-> `str_sub() extract parts of a string. The template is `str_sub(string, start, end)`
+> `str_sub()` extract parts of a string. The template is `str_sub(string, start, end)`
 
 ```{r}
 x <- c("Engineering", "Medicine", "Social Science", "Law", "Business")
@@ -732,8 +732,114 @@ str_replace_all(x, "[aeiou]", "-")
 str_split("The University of Hong Kong", " ")
 ```
 
-# forcats
+# forcats: Working with Factors
+`forcats` is a package for processing factors, or categorical variables. It is not part of the core tidyverse, so should be loaded explicitly.
+```{r}
+library(forcats)
+```
 
-# lubridate
+
+## Creating Factors
+
+> `factor(vec1, levels = vec2)` 
+
+
+```{r}
+month_levels <- c(
+  "Jan", "Feb", "Mar", "Apr", "May", "Jun",
+  "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
+)
+
+x <- c("Feb", "Jan", "Nov", "May")
+y <- factor(x, levels = month_levels)
+y
+```
+
+```{r}
+sort(y)
+```
+
+```{r}
+tshirt_size = c("XS", "S", "M", "L", "XL")
+x <- c("S", "XS", "XL", "M", "M", "M", "L")
+y = factor(x, levels = tshirt_size)
+sort(y)
+```
+
+If you omit the levels, `sort` function will sort values alphabetically.
+
+```{r}
+Males %>% 
+  count(ethn)
+```
+
+```{r}
+ggplot(Males) + 
+  geom_bar(aes(ethn))
+```
+
+## Modifying Factor Order
+
+```{r}
+Males %>% 
+  group_by(industry) %>% 
+  summarize(mean.wage = mean(wage)) %>% 
+ggplot() +
+  geom_point(aes(mean.wage, industry))
+```
+
+It is difficult to interpret this plot because there’s no overall pattern. We can improve it by reordering the levels of relig using `fct_reorder()`.
+
+
+```{r}
+Males %>% 
+  group_by(industry) %>% 
+  summarize(mean.wage = mean(wage)) %>% 
+ggplot() +
+  geom_point(aes(mean.wage, fct_reorder(industry, mean.wage)))
+```
+
+## Modifying Factor Levels
+```{r}
+levels(Males$industry)
+```
+
+```{r}
+cleaned.males <- Males %>% 
+  mutate(industry = fct_recode(industry,
+         "Professional and Related Service" = "Professional_and_Related Service",
+         "Business and Repair Service" = "Business_and_Repair_Service",
+         "Personal Service" = "Personal_Service",
+         "Public Administration" = "Public_Administration"))
+```
+
+```{r}
+levels(cleaned.males$industry)
+```
+
+`fct_recode()` will leave levels that aren't explicitly mentioned as is, and will warn you if you accidentally refer to a level that doesn't exist.
+
+To combine groups, you can assign multiple old levels to the same new level
+```{r}
+cleaned.combined.males <- cleaned.males %>% 
+  mutate(industry = fct_recode(industry,
+    "Service" = "Business and Repair Service",
+    "Service" = "Professional and Related Service",
+    "Service" = "Personal Service"))
+levels(cleaned.combined.males$industry)
+```
+
+If you want to collapse a lot of levels, `fct_collapse()` is a useful variant of `fct_recode()`
+```{r}
+cleaned.concise.males <- cleaned.males %>% 
+  mutate(industry = fct_collapse(industry,
+    Service = c("Business and Repair Service",
+                "Professional and Related Service",
+                "Personal Service")))
+levels(cleaned.concise.males$industry)
+```
+
+
+
 
 
