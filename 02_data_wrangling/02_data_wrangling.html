@@ -1225,40 +1225,40 @@ x</code></pre></div>
 <h3>Exact Match</h3>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">x &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;Engineering&quot;</span>, <span class="st">&quot;Medicine&quot;</span>, <span class="st">&quot;Science&quot;</span>, <span class="st">&quot;Social Science&quot;</span>)
 <span class="kw">str_view</span>(x, <span class="st">&quot;ne&quot;</span>)</code></pre></div>
-<div id="htmlwidget-72edb31589381022432b" style="width:960px;height:100%;" class="str_view html-widget"></div>
-<script type="application/json" data-for="htmlwidget-72edb31589381022432b">{"x":{"html":"<ul>\n  <li>Engi<span class='match'>ne<\/span>ering<\/li>\n  <li>Medici<span class='match'>ne<\/span><\/li>\n  <li>Science<\/li>\n  <li>Social Science<\/li>\n<\/ul>"},"evals":[],"jsHooks":[]}</script>
+<div id="htmlwidget-96e74fc53d3ceaa45d09" style="width:960px;height:100%;" class="str_view html-widget"></div>
+<script type="application/json" data-for="htmlwidget-96e74fc53d3ceaa45d09">{"x":{"html":"<ul>\n  <li>Engi<span class='match'>ne<\/span>ering<\/li>\n  <li>Medici<span class='match'>ne<\/span><\/li>\n  <li>Science<\/li>\n  <li>Social Science<\/li>\n<\/ul>"},"evals":[],"jsHooks":[]}</script>
 </div>
 <div id="to-match-any-character-except-a-newline" class="section level3">
 <h3><code>.</code> to match any character except a newline</h3>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">str_view</span>(x, <span class="st">&quot;.e.&quot;</span>)</code></pre></div>
-<div id="htmlwidget-e6edb369150fcb00de3e" style="width:960px;height:100%;" class="str_view html-widget"></div>
-<script type="application/json" data-for="htmlwidget-e6edb369150fcb00de3e">{"x":{"html":"<ul>\n  <li>Engi<span class='match'>nee<\/span>ring<\/li>\n  <li><span class='match'>Med<\/span>icine<\/li>\n  <li>Sc<span class='match'>ien<\/span>ce<\/li>\n  <li>Social Sc<span class='match'>ien<\/span>ce<\/li>\n<\/ul>"},"evals":[],"jsHooks":[]}</script>
+<div id="htmlwidget-b3ced531a0db41dc94f5" style="width:960px;height:100%;" class="str_view html-widget"></div>
+<script type="application/json" data-for="htmlwidget-b3ced531a0db41dc94f5">{"x":{"html":"<ul>\n  <li>Engi<span class='match'>nee<\/span>ring<\/li>\n  <li><span class='match'>Med<\/span>icine<\/li>\n  <li>Sc<span class='match'>ien<\/span>ce<\/li>\n  <li>Social Sc<span class='match'>ien<\/span>ce<\/li>\n<\/ul>"},"evals":[],"jsHooks":[]}</script>
 </div>
 <div id="to-match-the-start-of-the-string" class="section level3">
 <h3><code>^</code> to match the start of the string</h3>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">str_view</span>(x, <span class="st">&quot;^Sci&quot;</span>)</code></pre></div>
-<div id="htmlwidget-41160a68f0cb991c7101" style="width:960px;height:100%;" class="str_view html-widget"></div>
-<script type="application/json" data-for="htmlwidget-41160a68f0cb991c7101">{"x":{"html":"<ul>\n  <li>Engineering<\/li>\n  <li>Medicine<\/li>\n  <li><span class='match'>Sci<\/span>ence<\/li>\n  <li>Social Science<\/li>\n<\/ul>"},"evals":[],"jsHooks":[]}</script>
+<div id="htmlwidget-cccbd8f392fbe9ed55f2" style="width:960px;height:100%;" class="str_view html-widget"></div>
+<script type="application/json" data-for="htmlwidget-cccbd8f392fbe9ed55f2">{"x":{"html":"<ul>\n  <li>Engineering<\/li>\n  <li>Medicine<\/li>\n  <li><span class='match'>Sci<\/span>ence<\/li>\n  <li>Social Science<\/li>\n<\/ul>"},"evals":[],"jsHooks":[]}</script>
 </div>
 <div id="to-match-the-end-of-the-string" class="section level3">
 <h3><code>$</code> to match the end of the string</h3>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">str_view</span>(x, <span class="st">&quot;ing$&quot;</span>)</code></pre></div>
-<div id="htmlwidget-e7aed1f612070d74ac42" style="width:960px;height:100%;" class="str_view html-widget"></div>
-<script type="application/json" data-for="htmlwidget-e7aed1f612070d74ac42">{"x":{"html":"<ul>\n  <li>Engineer<span class='match'>ing<\/span><\/li>\n  <li>Medicine<\/li>\n  <li>Science<\/li>\n  <li>Social Science<\/li>\n<\/ul>"},"evals":[],"jsHooks":[]}</script>
+<div id="htmlwidget-f1d0d487e7966039a195" style="width:960px;height:100%;" class="str_view html-widget"></div>
+<script type="application/json" data-for="htmlwidget-f1d0d487e7966039a195">{"x":{"html":"<ul>\n  <li>Engineer<span class='match'>ing<\/span><\/li>\n  <li>Medicine<\/li>\n  <li>Science<\/li>\n  <li>Social Science<\/li>\n<\/ul>"},"evals":[],"jsHooks":[]}</script>
 </div>
 <div id="d-to-match-any-digit" class="section level3">
 <h3><code>\d</code> to match any digit</h3>
 <p>But remember you need to escape the “\” for the string.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">x &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;in the winter of 1993&quot;</span>, <span class="st">&quot;23 years old&quot;</span>)
 <span class="kw">str_view</span>(x, <span class="st">&quot;</span><span class="ch">\\</span><span class="st">d&quot;</span>)</code></pre></div>
-<div id="htmlwidget-e7c41a7214946f7cbac7" style="width:960px;height:100%;" class="str_view html-widget"></div>
-<script type="application/json" data-for="htmlwidget-e7c41a7214946f7cbac7">{"x":{"html":"<ul>\n  <li>in the winter of <span class='match'>1<\/span>993<\/li>\n  <li><span class='match'>2<\/span>3 years old<\/li>\n<\/ul>"},"evals":[],"jsHooks":[]}</script>
+<div id="htmlwidget-dd42fedcc5e3e442eac0" style="width:960px;height:100%;" class="str_view html-widget"></div>
+<script type="application/json" data-for="htmlwidget-dd42fedcc5e3e442eac0">{"x":{"html":"<ul>\n  <li>in the winter of <span class='match'>1<\/span>993<\/li>\n  <li><span class='match'>2<\/span>3 years old<\/li>\n<\/ul>"},"evals":[],"jsHooks":[]}</script>
 </div>
 <div id="s-to-match-any-spaces" class="section level3">
 <h3><code>\s</code> to match any spaces</h3>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">str_view_all</span>(x, <span class="st">&quot;</span><span class="ch">\\</span><span class="st">s&quot;</span>)</code></pre></div>
-<div id="htmlwidget-a72660f3af1f7ad00aa5" style="width:960px;height:100%;" class="str_view html-widget"></div>
-<script type="application/json" data-for="htmlwidget-a72660f3af1f7ad00aa5">{"x":{"html":"<ul>\n  <li>in<span class='match'> <\/span>the<span class='match'> <\/span>winter<span class='match'> <\/span>of<span class='match'> <\/span>1993<\/li>\n  <li>23<span class='match'> <\/span>years<span class='match'> <\/span>old<\/li>\n<\/ul>"},"evals":[],"jsHooks":[]}</script>
+<div id="htmlwidget-7b2c389d412b986087c2" style="width:960px;height:100%;" class="str_view html-widget"></div>
+<script type="application/json" data-for="htmlwidget-7b2c389d412b986087c2">{"x":{"html":"<ul>\n  <li>in<span class='match'> <\/span>the<span class='match'> <\/span>winter<span class='match'> <\/span>of<span class='match'> <\/span>1993<\/li>\n  <li>23<span class='match'> <\/span>years<span class='match'> <\/span>old<\/li>\n<\/ul>"},"evals":[],"jsHooks":[]}</script>
 </div>
 <div id="alternatives" class="section level3">
 <h3>Alternatives</h3>
@@ -1311,8 +1311,8 @@ x</code></pre></div>
 </table>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">x &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;Engineering&quot;</span>, <span class="st">&quot;Medicine&quot;</span>, <span class="st">&quot;Science&quot;</span>, <span class="st">&quot;Social Science&quot;</span>)
 <span class="kw">str_view</span>(x, <span class="st">&quot;^S[a-zA-Z ]+ce$&quot;</span>)</code></pre></div>
-<div id="htmlwidget-25882a7d423d00519397" style="width:960px;height:100%;" class="str_view html-widget"></div>
-<script type="application/json" data-for="htmlwidget-25882a7d423d00519397">{"x":{"html":"<ul>\n  <li>Engineering<\/li>\n  <li>Medicine<\/li>\n  <li><span class='match'>Science<\/span><\/li>\n  <li><span class='match'>Social Science<\/span><\/li>\n<\/ul>"},"evals":[],"jsHooks":[]}</script>
+<div id="htmlwidget-56f3ba3a61e4b3197864" style="width:960px;height:100%;" class="str_view html-widget"></div>
+<script type="application/json" data-for="htmlwidget-56f3ba3a61e4b3197864">{"x":{"html":"<ul>\n  <li>Engineering<\/li>\n  <li>Medicine<\/li>\n  <li><span class='match'>Science<\/span><\/li>\n  <li><span class='match'>Social Science<\/span><\/li>\n<\/ul>"},"evals":[],"jsHooks":[]}</script>
 </div>
 </div>
 <div id="str_detect" class="section level2">
