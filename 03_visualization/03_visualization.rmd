@@ -1,0 +1,431 @@
+---
+title: "Data Visualization"
+author: 'Lutao DAI'
+date: "Aug 20, 2019"
+output:
+  rmdformats::readthedown:
+    self_contained: true
+    thumbnails: true
+    lightbox: true
+    gallery: false
+    highlight: tango
+    toc_depth: 4
+  html_document:
+    code_folding: show
+    highlight: haddock
+    theme: readthedown #yeti #spacelab #simplex #readable #paper #flatly #cosmo #lumen
+    toc: yes
+    toc_depth: 3
+    toc_float: yes
+  pdf_document:
+    toc: yes
+    toc_depth: '4'
+---
+
+```{r, include=F}
+require(pacman)
+pacman::p_load(tidyverse, ggplot2, Ecdat, maps, maptools, ggmap, viridis, nycflights13)
+```
+
+# Datasets
+## World Happiness Report 2018 Dataset
+
+
+Column Name                  | Explaination                                
+:---------------------------:|:----------------------------------------
+Rank                         | Overall happiness ranking
+Country                      | Country name
+Score                        | Happiness score
+GDP_Per_Capita               | Economic contribution to happiness score
+Social_Support               | Social contribution to happiness score
+Healthy_Life_Expectancy      | Health contribution to happiness score
+Freedom_To_Make_Life_Choices | Freedom contribution to happiness score
+Generosity                   | Generosity contribution to happiness score
+Perceptions_Of_Corruption    | Trustworthiness contribution to happiness score
+Residual                     | Portion of happiness score that is not attributed to any of the listed categories
+
+`vec.len` indicates how many ‘first few’ elements are displayed of each vector. You can leave it to the default value. I have set this argument to 1 for better output file formating.
+
+```{r}
+happy.df <- read.csv("../data/WorldHappiness2018_Data.csv")
+str(happy.df, vec.len=1)
+```
+
+Reference:
+
+1. https://www.kaggle.com/PromptCloudHQ/world-happiness-report-2019
+1. https://worldhappiness.report/ed/2019/
+
+## Wages and Education of Young Males Datasets
+
+Column Name   | Explaination                                
+:------------:|:----------------------------------------
+nr            | Identifier
+year          | Year
+school        | Years of schooling
+exper         | Years of experience ($=$age$-6-$school)
+union         | If wage is set by collective bargaining
+ethn          | Ethnicity
+maried        | If married
+health        | If he has health problems
+wage          | Log hourly wage
+industr       | Industry that he was in
+occupation    | Occupation
+residence    | Residence location
+
+```{r}
+str(Males, vec.len=1)
+```
+
+## NYC Flights Data in 2013
+A data frame contains all 336,776 flights departing from New York City in 2013.
+
+Column Name                   | Explaination                                                                           
+:----------------------------:|:------------------------------------------------------------------------
+year, month, day              | Date of departure
+dep_time, arr_time            | Actual departure and arrival times (format HHMM or HMM), local tz.
+sched_dep_time, sched_arr_time| Scheduled departure and arrival times (format HHMM or HMM), local tz.
+dep_delay,arr_delay           |Departure and arrival delays, in minutes. Negative times represent early departures/arrivals.
+hour, minute                  | Time of scheduled departure broken into hour and minutes.
+carrier                       | Two letter carrier abbreviation. See airlines() to get name
+tailnum                       | Plane tail number
+flight                        | Flight number
+origin, dest                  | Origin and destination. See airports() for additional metadata.
+air_time                      | Amount of time spent in the air, in minutes
+distance                      | Distance between airports, in miles
+time_hour                     | Scheduled date and hour of the flight as a POSIXct date. Along with origin, can be used to join flights data to weather data.
+
+
+```{r}
+str(flights)
+```
+
+```{r, include=FALSE}
+happy.df <- as_data_frame(happy.df)
+Males <- as_data_frame(Males)
+```
+
+
+# ggplot2: Data Visualization
+The last step before exploratory data analysis (EDA) is visualization. Base R offers many tools to you to have a good look into data by creating simple plots. However, `ggplot2` is much more elegant and versatile.
+
+## Graphing Template
+```R
+ggplot(data = <DATA>) + 
+    <GEOM_FUNCTION>(mapping = aes(<MAPPINGS>))
+```
+
+All `ggplot2` commands can be thought as following this template. It starts with the `ggplot` function, followed by a string of geom functions. All functions are connected by `+`.
+
+It is a good practice to pass the common dataset to the `ggplot` function rather than later. In geom functions, `mapping` argument requests a list of aesthetic mappings to use for plot, which is typically returned by `aes` function. Generally, we do not need to care about the details behind this. It is sufficient just to treat `mapping = aes(<MAPPINGS>)` as one complete structure.
+
+Note that **DO NOT PUT `+` SIGN IN THE BEGINNING OF A NEW LINE**. The plus sign has to come at the end of a line.
+
+## One Variable
+### Bar Charts
+
+> `geom_bar` by default makes the height of the bar proportional to the number of observations in each group. 
+
+```{r}
+ggplot(data = Males) + 
+  geom_bar(mapping = aes(x = industry, fill=maried)) + 
+  theme(axis.text.x = element_text(angle = 90, hjust = 1)) #rotate x label by 90 degrees
+```
+
+`count` is information derived from original data. In other words, statistical transformation, or more specifically, counting (`stat_count`) happens in `geom_bar` function. Therefore, the following graph is identical to the graph above.
+
+```{r}
+ggplot(data = Males) + 
+  stat_count(mapping = aes(x = industry, fill=maried)) +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1)) #rotate x label by 90 degrees
+```
+
+#### Position Adjustment 1: dodge
+By default, bars are stacked if each group specified by the x variable can be divided into subgroups by additional information that we provide, which is `maried` in this example. If you prefer to places overlappping objects side by side, pass `position = "dodge"` to `geom_bar`.
+ 
+```{r}
+ggplot(data = Males) + 
+  geom_bar(mapping = aes(x = industry, fill=maried), position="dodge") + 
+  theme(axis.text.x = element_text(angle = 90, hjust = 1)) #rotate x label by 90 degrees
+```
+
+#### Position Adjustment 2: fill
+If you prefer proportion to count, (in this example, you are more concerend with the proportion of single men in each industry rather than the number), try `position = "fill"`.
+
+```{r}
+ggplot(data = Males) + 
+  geom_bar(mapping = aes(x = industry, fill=maried), position="fill") + 
+  theme(axis.text.x = element_text(angle = 90, hjust = 1)) #rotate x label by 90 degrees
+```
+
+### Density Plot and Histogram
+```{r}
+ggplot(happy.df, mapping = aes(x = Healthy_Life_Expectancy)) +
+  geom_density(kernel='gaussian') + 
+  geom_histogram(mapping = aes(y=..density..), bins=20, alpha=0.5)
+```
+
+`geom_density`: talk about kernel
+`geom_histogram`: bins and binwidth
+
+## Two Variables
+### Scatterplots
+
+> Scatterplots are most useful to see the relationship between two continuous variables.
+
+Suppose one would like to find out the relationship between money and happiness based on this dataset. The first step is usually plotting a scatterplot (dot plot) to have a sense about the trend.
+
+As introduced previously, the dataset `happy.df` is passed to `ggplot`. The function `geom_point` is the function used to create scatterplots. In this example, the function `aes` helps to specify which column is on the x-axis and which on y-axis. 
+```{r}
+ggplot(data = happy.df) + 
+    geom_point(mapping = aes(x = GDP_Per_Capita, y = Score))
+```
+
+
+According to the data, it looks like money and happiness do have quite strong positive correlation.
+
+Scatterplots are flexible. Additional to the location of points, marker type (`shape`), marker size (`size`), marker color (`color`) and transparency (`alpha`) can also be used to encode information. 
+
+> `shape` can only be used to represent discrete values, while `color`, `alpha` and `size` are good for both discrete and continuous values. All these attributes go inside the `aes` function.
+
+The following example uses transparency to represent life expectancy.
+
+```{r}
+ggplot(data = happy.df) + 
+    geom_point(mapping = aes(x = GDP_Per_Capita, y = Score, alpha = Healthy_Life_Expectancy))
+```
+
+Attributes defined outside of `mapping` do not carry information on dataset. Their values have to be provided externally.
+
+```{r}
+ggplot(data = happy.df) + 
+    geom_point(mapping = aes(x = GDP_Per_Capita, y = Score), color = "blue", shape=7)
+```
+
+Ideally, scatterplots are for two continuous variables. However, it can also be used to compare one continuous variable and one categorical variable. As you can see, this is not ideal because many points are overlapping since they are condensed on limited choices of experience values.
+
+```{r}
+ggplot(data = Males) + 
+    geom_point(mapping = aes(x = exper, y = wage, color=maried))
+```
+
+To mitigate this problem, setting `position='jitter'` to add a small amount of random variation to the location of eachi point.
+```{r}
+ggplot(data = Males) + 
+    geom_point(mapping = aes(x = exper, y = wage, color=maried), position='jitter')
+```
+
+Alternatively, use `geom_jitter`, which is a convenient shortcut for `geom_point(position = 'jitter')`.
+```{r}
+ggplot(data = Males) + 
+    geom_jitter(mapping = aes(x = exper, y = wage, color=maried))
+```
+
+
+Quiz: What goes wrong in the this plot?
+
+```{r}
+ggplot(data = happy.df) + 
+    geom_point(mapping = aes(x = GDP_Per_Capita, y = Score, color = "blue"))
+```
+
+### Lines
+
+```{r}
+ggplot(data = happy.df,  aes(x = Score, y = GDP_Per_Capita)) + 
+  geom_point() + 
+  geom_line()
+```
+
+```{r}
+ggplot(data = happy.df,  aes(x = Score, y = GDP_Per_Capita)) + 
+  geom_point() + 
+  geom_smooth()
+```
+
+
+### Rug Plots
+A rug plot is a compact visualisation designed to supplement a 2d display with the two 1d marginal distributions. Rug plots display individual cases so are best used with smaller datasets.
+
+
+```{r}
+ggplot(data = happy.df, 
+       mapping = aes(x = GDP_Per_Capita, y = Score)) + 
+    geom_point() + 
+    geom_rug(sides = "bl")
+```
+
+### Boxplots
+```{r}
+ggplot(flights) + 
+  geom_boxplot(mapping = aes(x = carrier, y = air_time), na.rm = TRUE)
+```
+
+How to read boxplot?
+
+### Violin Plots
+```{r}
+ggplot(flights) + 
+  geom_violin(mapping = aes(x = carrier, y = air_time), na.rm = TRUE)
+```
+
+```{r}
+ggplot(flights, aes(x = carrier, y = air_time)) + 
+  geom_boxplot(na.rm = TRUE) + 
+  geom_violin(na.rm = TRUE)
+```
+
+### 2D Density Plots
+```{r}
+ggplot(happy.df, aes(x=Healthy_Life_Expectancy, y=GDP_Per_Capita)) + 
+  geom_density2d()
+```
+
+### Hex Plot
+```{r}
+ggplot(happy.df, aes(x=Healthy_Life_Expectancy, y=GDP_Per_Capita)) + 
+  geom_hex(binwidth=c(0.2, 0.5))
+```
+
+
+
+
+## Facets: Groups of Scatterplots
+Besides using aesthetics attributes to add additional, such as `alpha` and `shape`, when dealing with categorical variables, one can also split plots into facets, so that we have a group of scatterplots, each represents one group.
+
+Suppose we would like to find out how experience affects wage for the two ethnic minority groups across 12 industries. We can create 12 scatterplots, one for each industry, instead of plotting one comprehensive scatterplot with all information, which is most likely very messy.
+
+To create this facet, call `facet_wrap()` after `geom_point()` or `geom_gitter()`. The first argument of `face_wrap()` is a formula. (Formula is a data structure in R, which can be seen as an expression with `~`). `~ industry` tells R to create a facet according to levels in `industry`.
+
+```{r}
+Males %>% 
+  filter(ethn != "other" ) %>% 
+    ggplot() + 
+      geom_jitter(mapping = aes(x = exper, y = wage, color=ethn), alpha=0.5) + 
+      facet_wrap( ~ industry, nrow=4)
+```
+
+It is easy to draw some preliminary conclusions according to the facet. For example, most observations are from manufacturing and trade. In finance industry, a black man usually earns more given a same year of experience, according to the dataset.
+
+You can also create a facet based on *combination* of levels among multiple discrete variables. To do this, put `~` between variable names. For example, instead of encoding ethnicities as colors, I create a facet based on the combination of ethnicity and industry.
+
+
+```{r}
+Males %>% 
+  filter(ethn != "other" ) %>% 
+    ggplot() + 
+      geom_jitter(mapping = aes(x = exper, y = wage), alpha=0.5) + 
+      facet_wrap(ethn ~ industry, nrow=4)
+```
+
+> It is obvious that the variable passed to `facet_wrap()` should be discrete.
+
+
+## Coordinate System
+```{r}
+ggplot(data = Males) + 
+  geom_bar(mapping = aes(x = school, fill=occupation)) +
+  coord_flip()
+```
+
+```{r}
+ggplot(data = Males) + 
+  geom_bar(mapping = aes(x = school, fill=occupation)) +
+  coord_polar()
+```
+
+## Geometric Objects
+```{r}
+ggplot(data = happy.df, mapping = aes(x = GDP_Per_Capita, y = Score)) + 
+  geom_point() + 
+  geom_smooth()
+```
+
+
+
+
+
+```{r}
+ggplot(data = happy.df, mapping = aes(x = GDP_Per_Capita, y = Score)) + 
+  geom_point() + 
+  geom_smooth()
+```
+
+
+```{r}
+ggplot(data = Males, mapping = aes(x = exper, y = wage, color=maried)) + 
+  geom_point() + 
+  geom_smooth()
+```
+
+## Map
+
+```{r}
+map.world <- map_data('world')
+```
+
+```{r}
+happy.df <- happy.df %>% 
+  mutate(Country = as.character(Country)) %>%
+  mutate(Country = if_else(Country == "United States", 'USA', 
+ if_else(Country == "United Kingdom", 'UK', 
+ Country)))
+```
+
+```{r}
+map.df <- left_join(map.world, happy.df, by = c('region' = 'Country'))
+```
+
+```{r}
+ggplot(data = map.df, aes(x = long, y = lat, group = group)) + 
+  geom_polygon(aes(fill = Score)) + 
+  scale_fill_viridis() + 
+  theme_bw() + 
+  labs(title = "Happiness Score by Country", subtitle = "Wold Happiness Report 2018")
+```
+
+
+
+#### The Google API
+As of mid-2018, the Google Maps Platform requires a registered API key. To use the Google Maps service, you are required to register an API. Go to the [API registration page](https://cloud.google.com/maps-platform/?&sign=0#get-started), check all map services and follow the instruction. The geocoding API is free if you remain in the free tier. Nevertheless you need to associate a credit card with the account.
+
+```{r, eval=F}
+register_google("your.api.key")
+```
+
+```{r, message=FALSE, eval=F}
+countries_loc <- geocode(c("Hong Kong", "New York, USA", "Tokyo, Japan", "London", 
+                           "Singapore", "Shanghai", "Toronto", "Zurich", "Beijing",
+                           "Frankfurt"))
+countries_lon <- countries_loc$lon
+countries_lat <- countries_loc$lat
+```
+
+```{r, eval=F}
+ggplot(data = countries_loc) + 
+  borders("world", fill = "grey", colour = "grey") + 
+  geom_point(mapping = aes(x = countries_lon, y = countries_lat, color="red")) + 
+  scale_fill_viridis() + 
+  theme(legend.position="none") + 
+  labs(title = "Financial Centers Distribution", 
+       subtitle = "According to Global Financial Centres Index (2007–ongoing)")
+```
+
+
+## Summary
+Type of Plots           | Geom Functions                
+:----------------------:|:-------------------------------------:
+Scatterplots            | `geom_point`, `geom_jitter`
+
+## Quick Reference
+Shape
+
+<img src="http://sape.inf.usi.ch/sites/default/files/ggplot2-shape-identity.png">
+
+ggplot2 cheatsheet
+https://www.rstudio.com/wp-content/uploads/2015/03/ggplot2-cheatsheet.pdf
+
+ggplot2 extensions
+https://www.ggplot2-exts.org/
+
+
